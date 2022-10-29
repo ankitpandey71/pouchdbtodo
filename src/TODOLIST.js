@@ -1,45 +1,33 @@
-import React, { useEffect, useState } from "react";
-import { getToDB, removeToDB } from "./PouchDB";
+import React from "react";
+import PropTypes from "prop-types";
+import TodoListItem from "./TodoListItem";
 
-const TODOList = () => {
-  const [itemsList, setItemsList] = useState([]);
-
-  useEffect(() => {
-    getToDBFun();
-  }, []);
-
-  async function getToDBFun() {
-    const data = await getToDB();
-    setItemsList(data?.rows);
-    // console.log("getToDBFun");
-    // console.log("itemsList mai hain ", data.rows, "comingitems");
-    // return itemsList;
-  }
-
-  const removeTodo = (ref) => {
-    const newTodo = itemsList.filter((item) => item.id !== ref);
-    setItemsList(newTodo);
-    removeToDB(ref);
-  };
-
-  return (
-    <div>
-      <ul className="ml-5">
-        {itemsList.map((itemvalue) => {
-          return (
-            <div className="space-y-5 flex space-x-5 items-center">
-              <div className="items-center">
-                <li className="mt-3">{itemvalue.doc.task}</li>
-              </div>
-              <div className=" space-x-5 space-y-2">
-                <button onClick={() => removeTodo(itemvalue.id)}>X</button>
-              </div>
-            </div>
-          );
-        })}
-      </ul>
-    </div>
-  );
-};
+// eslint-disable-next-line react/prop-types
+const TODOList = ({ itemsList = [], getToDBFun }) => (
+  <div>
+    <ul className="ml-5">
+      {itemsList.map((itemvalue, index) => (
+        <TodoListItem
+          task={itemvalue.doc.task}
+          taskId={itemvalue.id}
+          key={itemvalue.id}
+          getToDBFun={getToDBFun}
+          todoIndex={index}
+        />
+      ))}
+    </ul>
+  </div>
+);
 
 export default TODOList;
+
+TodoListItem.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  itemsList: PropTypes.array.isRequired,
+  getToDBFun: PropTypes.func.isRequired,
+};
+
+TodoListItem.defaultProps = {
+  itemsList: [],
+  getToDBFun: () => {},
+};

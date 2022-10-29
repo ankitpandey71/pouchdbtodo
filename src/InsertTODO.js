@@ -1,30 +1,25 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { insertToDB } from "./PouchDB";
-import TODOList from "./TODOLIST";
 
-const InsertToDo = () => {
-  const [inputlist, setInputlist] = useState(""); //inputList has user input
-  const [items, setItems] = useState([]);
+const InsertToDo = ({ getToDBFun }) => {
+  const [inputlist, setInputlist] = useState(""); // inputList has user input
 
   const itemEvent = (e) => {
     setInputlist(e.target.value);
   };
 
   const handleSubmit = async (e) => {
-    console.log(e);
     e.preventDefault();
     const newTodo = {
       // id: responseID.id,
       task: inputlist,
       isDone: false,
     };
-    let responseID = await insertToDB(newTodo);
+    const responseID = await insertToDB(newTodo);
     newTodo.id = responseID?.id;
-    setItems((previousData) => {
-      //console.log("itemsList have ", itemsList, " =====itemsList");
-      return [...previousData, newTodo]; // return [{fisrt data}] -->[{fistdata},{secon data}]
-    });
     setInputlist("");
+    await getToDBFun();
   };
 
   return (
@@ -53,3 +48,13 @@ const InsertToDo = () => {
 };
 
 export default InsertToDo;
+
+InsertToDo.propTypes = {
+  getToDBFun: PropTypes.func,
+};
+
+InsertToDo.defaultProps = {
+  task: "sample task",
+  taskId: "no id",
+  getToDBFun: () => {},
+};
